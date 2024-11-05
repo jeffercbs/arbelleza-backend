@@ -4,7 +4,7 @@ export class CreateProductDto {
   sku: string;
   categoryId: number;
   brand: string;
-  tags: string[];
+  tags: string;
   weight: number;
   long: number;
   width: number;

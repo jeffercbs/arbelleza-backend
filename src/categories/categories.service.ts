@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,26 +10,73 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-  ) {}
-  create(createCategoryDto: CreateCategoryDto) {
+  ) { }
+  async create(createCategoryDto: CreateCategoryDto) {
     try {
-      const newProduct = this.categoryRepository.create(createCategoryDto);
-    } catch (error) {}
+      const newCategory = await this.categoryRepository.create(createCategoryDto);
+      await this.categoryRepository.save(newCategory);
+    } catch (error) { }
   }
 
-  findAll() {
-    return `This action returns all categories`;
+  async findAll() {
+    return await this.categoryRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: number) {
+    try {
+      const categoryFound = await this.categoryRepository.findOne({
+        where: {
+          categoryId: id
+        }
+      })
+
+      if (!categoryFound) {
+        throw new NotFoundException({ msg: "category not found" })
+      }
+
+      return categoryFound
+    } catch (error) {
+      throw new ServiceUnavailableException()
+    }
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    try {
+      const categoryFound = await this.categoryRepository.findOne({
+        where: {
+          categoryId: id
+        }
+      })
+
+      if (!categoryFound) {
+        throw new NotFoundException()
+      }
+
+      await this.categoryRepository.update(categoryFound, updateCategoryDto)
+
+    } catch (error) {
+      throw new ServiceUnavailableException()
+
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: number) {
+    try {
+      const categoryFound = await this.categoryRepository.findOne({
+        where: {
+          categoryId: id
+        }
+      })
+
+      if (!categoryFound) {
+        throw new NotFoundException()
+      }
+
+      this.categoryRepository.delete(categoryFound.categoryId)
+
+    } catch (error) {
+      throw new ServiceUnavailableException()
+
+    }
   }
 }

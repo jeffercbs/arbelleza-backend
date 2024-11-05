@@ -1,11 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
 import { Category } from '@/categories/entities/category.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 
 @Entity('products')
 export class Product {
@@ -21,17 +20,14 @@ export class Product {
   @Column({ type: 'varchar', length: 100 })
   sku: string;
 
-  @ManyToOne(() => Category, (category) => category.products, {
-    nullable: false,
-  })
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
   @Column({ type: 'varchar', length: 100 })
   brand: string;
 
-  @Column({ type: 'array', length: 255, nullable: true })
-  tags: string[];
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  tags: string;
 
   @Column({ type: 'float', nullable: true })
   weight: number;
@@ -67,7 +63,7 @@ export class Product {
   image: string;
 
   @Column('json', { nullable: true, default: null })
-  images: string[];
+  images: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

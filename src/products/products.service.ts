@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -10,15 +10,15 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) {}
-  create(createProductDto: CreateProductDto) {
+  ) { }
+  async create(createProductDto: CreateProductDto) {
     try {
-      const newProduct = this.productRepository.create(createProductDto);
-      this.productRepository.save(newProduct);
+      const newProduct = await this.productRepository.create(createProductDto);
+      await this.productRepository.save(newProduct);
 
       return { message: 'Product created successfully', now: new Date() };
     } catch (error) {
-      return { message: 'Error creating product' };
+      return { message: 'Error creating product', error };
     }
   }
 
@@ -27,18 +27,58 @@ export class ProductsService {
   }
 
   findAll() {
-    return `This action returns all products`;
+    return this.productRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    try {
+      const product = await this.productRepository.findOne({
+        where: {
+          productId: id
+        }
+      })
+
+      if (!product) {
+        throw new NotFoundException({ error: "Not found the product" })
+      }
+    } catch (error) {
+      throw new ServiceUnavailableException()
+    };
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    try {
+      const product = await this.productRepository.findOne({
+        where: {
+          productId: id
+        }
+      })
+      if (!product) {
+        throw new NotFoundException({ msg: "Product not found" })
+      }
+
+      await this.productRepository.update(product, updateProductDto)
+      return { msg: "ok" }
+    } catch (error) {
+      throw new ServiceUnavailableException()
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    try {
+      const product = await this.productRepository.findOne({
+        where: {
+          productId: id
+        }
+      })
+
+      if (!product) {
+        throw new NotFoundException()
+      }
+
+      await this.productRepository.delete(product.productId)
+    } catch (error) {
+      throw new ServiceUnavailableException()
+    }
   }
 }

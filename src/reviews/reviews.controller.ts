@@ -1,13 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
+import { View } from '@/auth/visibility.decorator';
+import { Visibility } from '@/auth/visibility.enum';
 
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
+  @View(Visibility.Private)
   create(@Body() createReviewDto: CreateReviewDto) {
     return this.reviewsService.create(createReviewDto);
   }
