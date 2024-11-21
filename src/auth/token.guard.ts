@@ -7,12 +7,14 @@ import { VISIBILITY_KEY } from './visibility.decorator';
 
 @Injectable()
 export class TokenGuard implements CanActivate {
-  constructor(private reflator: Reflector) {}
+  constructor(private reflator: Reflector) { }
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(req);
+
+    console.log(req.headers)
 
     const isPrivate = this.reflator.get<Visibility>(
       VISIBILITY_KEY,

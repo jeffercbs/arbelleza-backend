@@ -2,7 +2,7 @@ import { Category } from '@/categories/entities/category.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn
 } from 'typeorm';
 
@@ -20,7 +20,10 @@ export class Product {
   @Column({ type: 'varchar', length: 100 })
   sku: string;
 
-  @JoinColumn({ name: 'categoryId' })
+  @Column('int', { name: 'categoryId' })
+  categoryId: number;
+
+  @OneToOne(() => Category, category => category.categoryId)
   category: Category;
 
   @Column({ type: 'varchar', length: 100 })
@@ -41,7 +44,7 @@ export class Product {
   @Column({ type: 'float', nullable: true })
   height: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal')
   price: number;
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true })

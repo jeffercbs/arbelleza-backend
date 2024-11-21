@@ -1,3 +1,5 @@
+import { Role } from '@/auth/role.enum';
+import { Roles } from '@/auth/roles.decorator';
 import { View } from '@/auth/visibility.decorator';
 import { Visibility } from '@/auth/visibility.enum';
 import {
@@ -9,8 +11,10 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,16 +22,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
-import { Roles } from '@/auth/roles.decorator';
-import { Role } from '@/auth/role.enum';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Post()
-  @View(Visibility.Private)
-  @Roles(Role.Admin)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -35,15 +35,26 @@ export class ProductsController {
   @Get()
   @View(Visibility.Public)
   @Roles(Role.User)
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query('page', ParseIntPipe) page: number) {
+    return this.productsService.findAll(page);
   }
 
   @Get(':id')
   @View(Visibility.Public)
-  @Roles(Role.User)
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
+  }
+
+  @Get('category/:id')
+  @View(Visibility.Public)
+  findByCategory(@Param('id') name: string, @Query('page', ParseIntPipe) page: number) {
+    return this.productsService.findByCategory(name, page);
+  }
+
+  @Get('offers')
+  @View(Visibility.Public)
+  findInOffer(@Query('page', ParseIntPipe) page: number) {
+    return this.productsService.findInOffer(page);
   }
 
   @Patch(':id/images')
