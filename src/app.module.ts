@@ -6,17 +6,15 @@ import { OrdesModule } from './ordes/ordes.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ProductsModule } from './products/products.module';
 import { ReviewsModule } from './reviews/reviews.module';
-import { UsersModule } from './users/users.module';
 
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from './accounts/accounts.module';
+import { ActivityModule } from './activity/activity.module';
 import { TokenGuard } from './auth/token.guard';
 import { OffersModule } from './offers/offers.module';
-import { TokensModule } from './tokens/tokens.module';
-import { ActivityModule } from './activity/activity.module';
 
 @Module({
   imports: [
@@ -33,6 +31,7 @@ import { ActivityModule } from './activity/activity.module';
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+      cache: true,
     }),
     ThrottlerModule.forRoot([
       {
@@ -51,14 +50,12 @@ import { ActivityModule } from './activity/activity.module';
         limit: 100,
       },
     ]),
-    UsersModule,
     PaymentsModule,
     OrdesModule,
     ProductsModule,
     CategoriesModule,
     ReviewsModule,
     OffersModule,
-    TokensModule,
     AccountsModule,
     ActivityModule,
   ],
@@ -71,4 +68,4 @@ import { ActivityModule } from './activity/activity.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

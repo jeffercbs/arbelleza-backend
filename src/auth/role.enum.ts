@@ -3,4 +3,5 @@ export enum Role {
   Team = 'team',
   Provider = 'provider',
   User = 'user',
+  Anonymous = 'anonymous',
 }

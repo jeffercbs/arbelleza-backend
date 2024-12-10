@@ -7,15 +7,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { OrderDetail } from './order-detail.entity';
-import { User } from '@/users/entities/user.entity';
 
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn()
   orderId: number;
-
-  @OneToOne(() => User, (User) => User.orders)
-  user: User;
 
   @OneToOne(() => Payment, (payment) => payment.order)
   payment: Payment;

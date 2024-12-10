@@ -1,5 +1,6 @@
+import { Offer } from '@/offers/entities/offer.entity';
 import { Product } from '@/products/entities/product.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('categories')
 export class Category {
@@ -18,4 +19,6 @@ export class Category {
   @OneToMany(() => Product, product => product.category)
   products: Product[];
 
+  @ManyToMany(() => Offer, offer => offer.categories)
+  offers: Offer[];
 }

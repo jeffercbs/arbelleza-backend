@@ -1,34 +1,60 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { View } from '@/auth/visibility.decorator';
+import { Visibility } from '@/auth/visibility.enum';
+import { Role } from '@/auth/role.enum';
+import { Roles } from '@/auth/roles.decorator';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) { }
 
   @Post()
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
+  @Roles(Role.Team)
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
 
   @Get()
+  @View(Visibility.Public)
+  @Roles(Role.Anonymous)
   findAll() {
     return this.categoriesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.categoriesService.findOne(+id);
+  @Get(':name')
+  @View(Visibility.Public)
+  @Roles(Role.Anonymous)
+  findOne(@Param('name') name: string) {
+    return this.categoriesService.findOne(name);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoriesService.update(+id, updateCategoryDto);
+  @Patch(':name')
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
+  update(
+    @Param('name') name: string,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ) {
+    return this.categoriesService.update(name, updateCategoryDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.categoriesService.remove(+id);
+  @Delete(':name')
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
+  remove(@Param('name') name: string) {
+    return this.categoriesService.remove(name);
   }
 }

@@ -2,8 +2,9 @@ import { Category } from '@/categories/entities/category.entity';
 import {
   Column,
   Entity,
-  OneToOne,
-  PrimaryGeneratedColumn
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity('products')
@@ -23,7 +24,8 @@ export class Product {
   @Column('int', { name: 'categoryId' })
   categoryId: number;
 
-  @OneToOne(() => Category, category => category.categoryId)
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: 'categoryId' })
   category: Category;
 
   @Column({ type: 'varchar', length: 100 })

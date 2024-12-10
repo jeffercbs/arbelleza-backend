@@ -28,33 +28,66 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
   @Post()
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
+  @Get('new')
+  @View(Visibility.Public)
+  @Roles(Role.Anonymous)
+  findNew(@Query('page', ParseIntPipe) page: number = 1) {
+    return this.productsService.findProductsNew(page);
+  }
+
+  @Get('offers')
+  @View(Visibility.Public)
+  @Roles(Role.Anonymous)
+  findInOffer(
+    @Query('page', ParseIntPipe) page: number,
+  ) {
+    return this.productsService.findInOffer(page);
+  }
+
+  @Get('related')
+  @View(Visibility.Public)
+  @Roles(Role.Anonymous)
+  findRelated(
+    @Param('tags') tags: string,
+    @Query('page', ParseIntPipe) page: number,
+  ) {
+    return this.productsService.findRelatedProductsByTags(tags, page);
+  }
+
+
+  @Patch(':id')
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
+  @Roles(Role.Team)
+  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+    return this.productsService.update(id, updateProductDto);
+  }
+
+  @Delete(':id')
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
+  remove(@Param('id') id: string) {
+    return this.productsService.remove(id);
+  }
+
   @Get()
   @View(Visibility.Public)
-  @Roles(Role.User)
-  findAll(@Query('page', ParseIntPipe) page: number) {
+  @Roles(Role.Anonymous)
+  findAll(@Query('page', ParseIntPipe) page: number = 1) {
     return this.productsService.findAll(page);
   }
 
   @Get(':id')
   @View(Visibility.Public)
+  @Roles(Role.Anonymous)
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
-  }
-
-  @Get('category/:id')
-  @View(Visibility.Public)
-  findByCategory(@Param('id') name: string, @Query('page', ParseIntPipe) page: number) {
-    return this.productsService.findByCategory(name, page);
-  }
-
-  @Get('offers')
-  @View(Visibility.Public)
-  findInOffer(@Query('page', ParseIntPipe) page: number) {
-    return this.productsService.findInOffer(page);
   }
 
   @Patch(':id/images')
@@ -77,19 +110,5 @@ export class ProductsController {
     files: Array<Express.Multer.File>,
   ) {
     return this.productsService.upladetImage(id, files);
-  }
-
-  @Patch(':id')
-  @View(Visibility.Private)
-  @Roles(Role.Admin)
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(id, updateProductDto);
-  }
-
-  @Delete(':id')
-  @View(Visibility.Private)
-  @Roles(Role.Admin)
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
   }
 }

@@ -10,7 +10,7 @@ export class OrdesService {
   constructor(
     @InjectRepository(Order)
     private ordeRepository: Repository<Order>,
-  ) {}
+  ) { }
   create(createOrdeDto: CreateOrdeDto) {
     return 'This action adds a new orde';
   }
@@ -19,15 +19,15 @@ export class OrdesService {
     return `This action returns all ordes`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} orde`;
   }
 
-  update(id: number, updateOrdeDto: UpdateOrdeDto) {
+  update(id: string, updateOrdeDto: UpdateOrdeDto) {
     return `This action updates a #${id} orde`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} orde`;
   }
 }

@@ -8,31 +8,34 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 
 @Controller('accounts')
 export class AccountsController {
-  constructor(private readonly accountsService: AccountsService) {}
+  constructor(private readonly accountsService: AccountsService) { }
 
   @Get()
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
+  @Roles(Role.Team)
   findAll() {
     return this.accountsService.findAll();
   }
 
   @Get(':id')
-  @View(Visibility.Public)
+  @View(Visibility.Private)
   @Roles(Role.User)
   findOne(@Param('id') id: string) {
-    return this.accountsService.findOne(+id);
+    return this.accountsService.findOne(id);
   }
 
   @Patch(':id')
-  @View(Visibility.Public)
+  @View(Visibility.Private)
   @Roles(Role.User)
   update(@Param('id') id: string, @Body() updateAccountDto: UpdateAccountDto) {
-    return this.accountsService.update(+id, updateAccountDto);
+    return this.accountsService.update(id, updateAccountDto);
   }
 
   @Delete(':id')
-  @View(Visibility.Public)
+  @View(Visibility.Private)
   @Roles(Role.User)
   remove(@Param('id') id: string) {
-    return this.accountsService.remove(+id);
+    return this.accountsService.remove(id);
   }
 }

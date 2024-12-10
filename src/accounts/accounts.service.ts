@@ -16,15 +16,15 @@ export class AccountsService {
     return this.accountRepository.find();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} account`;
   }
 
-  update(id: number, updateAccountDto: UpdateAccountDto) {
+  update(id: string, updateAccountDto: UpdateAccountDto) {
     return `This action updates a #${id} account`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} account`;
   }
 }

@@ -1,36 +1,48 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { verifyToken } from '@clerk/express';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Request } from 'express';
-import { Observable } from 'rxjs';
-import { Visibility } from './visibility.enum';
 import { VISIBILITY_KEY } from './visibility.decorator';
+import { Visibility } from './visibility.enum';
+import { Role } from './role.enum';
+import { ROLE_KEY } from './roles.decorator';
 
 @Injectable()
 export class TokenGuard implements CanActivate {
   constructor(private reflator: Reflector) { }
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(req);
 
-    console.log(req.headers)
+  private readonly logger = new Logger();
+
+  async canActivate(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
 
     const isPrivate = this.reflator.get<Visibility>(
       VISIBILITY_KEY,
       context.getHandler() || context.getClass(),
     );
 
-    if (isPrivate == Visibility.Private) {
-      if (token) return false;
+    const role = this.reflator.get<Role>(
+      ROLE_KEY,
+      context.getHandler() || context.getClass(),
+    );
+
+    try {
+      if (isPrivate === Visibility.Private) {
+        if (role !== Role.Admin || Role.Team) {
+          await verifyToken(req.cookies.__session, {
+            jwtKey: process.env.CLERK_JWT_KEY,
+          });
+        }
+        return false
+      }
+    } catch (error) {
+      this.logger.error(error);
       return false;
     }
-
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
   }
 }
