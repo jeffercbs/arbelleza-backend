@@ -6,13 +6,16 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { Payment } from './entities/payment.entity';
 import { mercadoPago } from './mercadopago.config';
+import { Order, Status } from '@/ordes/entities/orde.entity';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @InjectRepository(Payment)
     private paymentRepository: Repository<Payment>,
-  ) { }
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+  ) {}
   async create(createPaymentDto: CreatePaymentDto[]) {
     try {
       const preference = await new Preference(mercadoPago).create({
@@ -36,15 +39,19 @@ export class PaymentsService {
 
   async validatePayment(data: any) {
     try {
-      const { data: { id } } = data;
+      const {
+        data: { id },
+      } = data;
       const payment = await new PaymentMP(mercadoPago).get({ id });
       if (payment.status === 'approved') {
-        const findPayment = await this.paymentRepository.find({ where: { id: payment.id } });
+        const findPayment = await this.paymentRepository.find({
+          where: { id: payment.id },
+        });
         if (!findPayment) {
           return { message: 'Payment already exists' };
         }
 
-        const newPayment = await this.paymentRepository.create({
+        const newPayment = this.paymentRepository.create({
           id: payment.id,
           payment_amount: payment.shipping_amount,
           payment_method: payment.fee_details[0].type,
@@ -52,6 +59,7 @@ export class PaymentsService {
           ip_address: payment.additional_info.ip_address,
         });
 
+        await this.orderRepository.update(id, { status: Status.delivered });
         await this.paymentRepository.save(newPayment);
         return { message: 'Payment approved' };
       }

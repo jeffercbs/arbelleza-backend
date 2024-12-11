@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { OrdesService } from './ordes.service';
 import { CreateOrdeDto } from './dto/create-orde.dto';
 import { UpdateOrdeDto } from './dto/update-orde.dto';
@@ -6,16 +14,20 @@ import { Role } from '@/auth/role.enum';
 import { Roles } from '@/auth/roles.decorator';
 import { View } from '@/auth/visibility.decorator';
 import { Visibility } from '@/auth/visibility.enum';
+import { CreateOrderDetailDto } from './dto/create-orde-detail';
 
 @Controller('ordes')
 export class OrdesController {
-  constructor(private readonly ordesService: OrdesService) { }
+  constructor(private readonly ordesService: OrdesService) {}
 
   @Post()
   @View(Visibility.Public)
   @Roles(Role.User)
-  create(@Body() createOrdeDto: CreateOrdeDto) {
-    return this.ordesService.create(createOrdeDto);
+  create(
+    @Body() createOrdeDto: CreateOrdeDto,
+    @Body() createOrderDetailDto: CreateOrderDetailDto[],
+  ) {
+    return this.ordesService.create(createOrdeDto, createOrderDetailDto);
   }
 
   @Get()

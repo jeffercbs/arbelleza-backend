@@ -1,26 +1,62 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateOrdeDto } from './dto/create-orde.dto';
 import { UpdateOrdeDto } from './dto/update-orde.dto';
 import { Order } from './entities/orde.entity';
+import { OrderDetail } from './entities/order-detail.entity';
+import { CreateOrderDetailDto } from './dto/create-orde-detail';
 
 @Injectable()
 export class OrdesService {
   constructor(
     @InjectRepository(Order)
     private ordeRepository: Repository<Order>,
-  ) { }
-  create(createOrdeDto: CreateOrdeDto) {
-    return 'This action adds a new orde';
+    @InjectRepository(OrderDetail)
+    private ordeDetailRepository: Repository<OrderDetail>,
+  ) {}
+  async create(
+    createOrdeDto: CreateOrdeDto,
+    createOrderDetailDto: CreateOrderDetailDto[],
+  ) {
+    try {
+      const newOrder = this.ordeRepository.create(createOrdeDto);
+      await this.ordeRepository.save(newOrder);
+
+      await Promise.all(
+        createOrderDetailDto.map(async (detail) => {
+          const newOrderDetail = this.ordeDetailRepository.create(detail);
+          newOrderDetail.orderId = newOrder.orderId;
+          await this.ordeDetailRepository.save(newOrderDetail);
+        }),
+      );
+
+      return { message: 'Order created successfully' };
+    } catch {
+      throw new ServiceUnavailableException();
+    }
   }
 
-  findAll() {
-    return `This action returns all ordes`;
+  async findAll() {
+    try {
+      const orders = await this.ordeRepository.find({});
+      return orders;
+    } catch {
+      throw new ServiceUnavailableException();
+    }
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} orde`;
+  async findOne(id: string) {
+    try {
+      const foundOrder = await this.ordeRepository.find({
+        where: { orderId: id },
+        relations: ['orderDetails'],    
+      });
+      
+      return foundOrder;
+    } catch {
+      throw new ServiceUnavailableException();
+    }
   }
 
   update(id: string, updateOrdeDto: UpdateOrdeDto) {
