@@ -40,6 +40,11 @@ export class OrdesService {
   async findAll() {
     try {
       const orders = await this.ordeRepository.find({});
+
+      if (!orders) {
+        return { message: 'No order found' };
+      }
+
       return orders;
     } catch {
       throw new ServiceUnavailableException();
@@ -50,9 +55,13 @@ export class OrdesService {
     try {
       const foundOrder = await this.ordeRepository.find({
         where: { orderId: id },
-        relations: ['orderDetails'],    
+        relations: ['orderDetails'],
       });
-      
+
+      if (!foundOrder) {
+        return { message: 'Order not found' };
+      }
+
       return foundOrder;
     } catch {
       throw new ServiceUnavailableException();

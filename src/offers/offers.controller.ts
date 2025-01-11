@@ -17,7 +17,7 @@ import { OffersService } from './offers.service';
 
 @Controller('offers')
 export class OffersController {
-  constructor(private readonly offersService: OffersService) { }
+  constructor(private readonly offersService: OffersService) {}
 
   @Post()
   @View(Visibility.Private)

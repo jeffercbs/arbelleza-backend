@@ -14,16 +14,16 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) { }
+  ) {}
   async create(createProductDto: CreateProductDto) {
     try {
       const newProduct = await this.productRepository.create(createProductDto);
-
       await this.productRepository.save(newProduct);
 
       return { message: 'Product created successfully', now: new Date() };
     } catch (error) {
-      return { message: 'Error creating product', error };
+      console.log(error);
+      throw new ServiceUnavailableException();
     }
   }
 
@@ -32,46 +32,72 @@ export class ProductsService {
   }
 
   async findAll(page: number) {
-    const pageSize = 30;
-    const [result, total] = await this.productRepository.findAndCount({
-      take: pageSize,
-      skip: (page - 1) * pageSize,
-      select: {
-        productId: true,
-        name: true,
-        brand: true,
-        price: true,
-        image: true,
-        allowStock: true,
-        activePriceOffer: true,
-      },
-    });
+    try {
+      const pageSize = 30;
+      const [result, total] = await this.productRepository.findAndCount({
+        order: {
+          allowStock: 'DESC',
+        },
+        take: pageSize,
+        skip: (page - 1) * pageSize,
+        select: {
+          productId: true,
+          name: true,
+          brand: true,
+          price: true,
+          image: true,
+          allowStock: true,
+          activePriceOffer: true,
+          categoryId: true,
+        },
+      });
 
-    const totalPages = Math.ceil(total / pageSize);
-    const nextCursor = page < totalPages ? page + 1 : null;
+      const totalPages = Math.ceil(total / pageSize);
+      const nextCursor = page < totalPages ? page + 1 : null;
 
-    return {
-      page,
-      nextCursor,
-      totalPages,
-      totalItems: total,
-      data: result,
-    };
+      if (result.length === 0) {
+        throw new NotFoundException('Not found products');
+      }
+
+      return {
+        page,
+        nextCursor,
+        totalPages,
+        totalItems: total,
+        data: result,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        return error;
+      }
+      throw new ServiceUnavailableException();
+    }
   }
 
   async findInOffer(page: number) {
     try {
       const pageSize = 30;
       const [products, total] = await this.productRepository.findAndCount({
-        where: {
-          activePriceOffer: true,
-        },
         take: pageSize,
         skip: (page - 1) * pageSize,
+        select: {
+          productId: true,
+          name: true,
+          brand: true,
+          price: true,
+          image: true,
+          allowStock: true,
+          salePrice: true,
+          activePriceOffer: true,
+        },
       });
 
       const totalPages = Math.ceil(total / pageSize);
       const nextCursor = page < totalPages ? page + 1 : null;
+
+      if (!products) {
+        throw new NotFoundException('Not found products in offer');
+      }
 
       return {
         page,
@@ -81,6 +107,9 @@ export class ProductsService {
         productos: products,
       };
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        return error;
+      }
       throw new ServiceUnavailableException();
     }
   }
@@ -93,6 +122,7 @@ export class ProductsService {
         skip: (page - 1) * pageSize,
         order: {
           createdAt: 'DESC',
+          allowStock: 'DESC',
         },
         select: {
           productId: true,
@@ -108,6 +138,10 @@ export class ProductsService {
       const totalPages = Math.ceil(total / pageSize);
       const nextCursor = page < totalPages ? page + 1 : null;
 
+      if (!result) {
+        throw new NotFoundException('Not found products');
+      }
+
       return {
         page,
         nextCursor,
@@ -116,7 +150,10 @@ export class ProductsService {
         products: result,
       };
     } catch (error) {
-      throw new ServiceUnavailableException()
+      if (error instanceof NotFoundException) {
+        return error;
+      }
+      throw new ServiceUnavailableException();
     }
   }
 
@@ -148,6 +185,10 @@ export class ProductsService {
         products: products,
       };
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
       throw new ServiceUnavailableException();
     }
   }
@@ -170,7 +211,7 @@ export class ProductsService {
           tags: true,
           stock: true,
           images: true,
-        }
+        },
       });
 
       if (!product) {
@@ -179,6 +220,9 @@ export class ProductsService {
 
       return product;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new ServiceUnavailableException();
     }
   }
@@ -215,6 +259,9 @@ export class ProductsService {
 
       await this.productRepository.delete(product.productId);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new ServiceUnavailableException();
     }
   }

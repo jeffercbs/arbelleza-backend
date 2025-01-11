@@ -25,7 +25,7 @@ import { ProductsService } from './products.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @Post()
   @View(Visibility.Private)
@@ -44,9 +44,7 @@ export class ProductsController {
   @Get('offers')
   @View(Visibility.Public)
   @Roles(Role.Anonymous)
-  findInOffer(
-    @Query('page', ParseIntPipe) page: number,
-  ) {
+  findInOffer(@Query('page', ParseIntPipe) page: number) {
     return this.productsService.findInOffer(page);
   }
 
@@ -59,7 +57,6 @@ export class ProductsController {
   ) {
     return this.productsService.findRelatedProductsByTags(tags, page);
   }
-
 
   @Patch(':id')
   @View(Visibility.Private)

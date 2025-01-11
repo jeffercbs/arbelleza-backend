@@ -17,7 +17,7 @@ import { Roles } from '@/auth/roles.decorator';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
   @View(Visibility.Private)

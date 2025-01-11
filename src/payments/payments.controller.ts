@@ -10,7 +10,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post
+  Post,
 } from '@nestjs/common';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -18,20 +18,20 @@ import { PaymentsService } from './payments.service';
 
 @Controller('payments')
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) { }
+  constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post()
   @View(Visibility.Public)
   @Roles(Role.User)
-  create(@Body() createPaymentDto: CreatePaymentDto[]) {
+  create(@Body() createPaymentDto: CreatePaymentDto) {
     return this.paymentsService.create(createPaymentDto);
   }
 
-  @Post("validate")
+  @Post('validate')
   @View(Visibility.Public)
   @Roles(Role.Anonymous)
   validatePayment(@Body() data: { id: string }) {
-    return this.paymentsService.validatePayment(data)
+    return this.paymentsService.validatePayment(data);
   }
 
   @Get()
@@ -51,7 +51,10 @@ export class PaymentsController {
   @Patch(':id')
   @View(Visibility.Private)
   @Roles(Role.Admin)
-  update(@Param('id', ParseIntPipe) id: number, @Body() updatePaymentDto: UpdatePaymentDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePaymentDto: UpdatePaymentDto,
+  ) {
     return this.paymentsService.update(id, updatePaymentDto);
   }
 

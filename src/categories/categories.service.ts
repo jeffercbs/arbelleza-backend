@@ -14,23 +14,37 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-  ) { }
+  ) {}
   async create(createCategoryDto: CreateCategoryDto) {
     try {
       const newCategory =
         await this.categoryRepository.create(createCategoryDto);
       await this.categoryRepository.save(newCategory);
-    } catch (error) { }
+    } catch (error) {
+      throw new ServiceUnavailableException();
+    }
   }
 
   async findAll() {
-    return await this.categoryRepository.find({
-      select: {
-        categoryId: true,
-        categoryName: true,
-        categoryDescription: true,
-      },
-    });
+    try {
+      const categories = await this.categoryRepository.find({
+        select: {
+          categoryId: true,
+          categoryName: true,
+          categoryDescription: true,
+          categoryImage: true,
+        },
+        order: {
+          products: {
+            allowStock: 'DESC',
+          },
+        },
+      });
+
+      return categories;
+    } catch (error) {
+      throw new ServiceUnavailableException();
+    }
   }
 
   async findOne(name: string) {
@@ -53,13 +67,13 @@ export class CategoriesService {
             price: true,
             stock: true,
             brand: true,
+            allowStock: true,
             activePriceOffer: true,
           },
         },
       });
-
       if (!categoryFound) {
-        throw new NotFoundException({ msg: 'category not found' });
+        throw new NotFoundException('category not found');
       }
 
       return {
@@ -67,6 +81,9 @@ export class CategoriesService {
         ...categoryFound,
       };
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new ServiceUnavailableException();
     }
   }
@@ -85,6 +102,10 @@ export class CategoriesService {
 
       await this.categoryRepository.update(categoryFound, updateCategoryDto);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
       throw new ServiceUnavailableException();
     }
   }
@@ -103,6 +124,10 @@ export class CategoriesService {
 
       this.categoryRepository.delete(categoryFound.categoryId);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
       throw new ServiceUnavailableException();
     }
   }
