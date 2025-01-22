@@ -23,7 +23,7 @@ export class PaymentsController {
   @Post()
   @View(Visibility.Public)
   @Roles(Role.User)
-  create(@Body() createPaymentDto: CreatePaymentDto) {
+  create(@Body() createPaymentDto: CreatePaymentDto[]) {
     return this.paymentsService.create(createPaymentDto);
   }
 

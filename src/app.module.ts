@@ -15,6 +15,7 @@ import { AccountsModule } from './accounts/accounts.module';
 import { ActivityModule } from './activity/activity.module';
 import { TokenGuard } from './auth/token.guard';
 import { OffersModule } from './offers/offers.module';
+import { ResendModule } from './resend/resend.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { OffersModule } from './offers/offers.module';
     OffersModule,
     AccountsModule,
     ActivityModule,
+    ResendModule,
   ],
   controllers: [AppController],
   providers: [

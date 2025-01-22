@@ -1,5 +1,3 @@
-import { CreateOrderDetailDto } from './create-orde-detail';
-
 export class CreateOrdeDto {
   orderID: string;
   phone: string;
@@ -7,5 +5,4 @@ export class CreateOrdeDto {
   city: string;
   country: string;
   postalCode: string;
-  orderDetails: CreateOrderDetailDto[];
 }

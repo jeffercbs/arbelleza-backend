@@ -15,13 +15,13 @@ export class OrdesService {
     @InjectRepository(OrderDetail)
     private ordeDetailRepository: Repository<OrderDetail>,
   ) {}
-  async create(
+
+  async createOrderFromPayment(
     createOrdeDto: CreateOrdeDto,
     createOrderDetailDto: CreateOrderDetailDto[],
   ) {
     try {
-      const newOrder = this.ordeRepository.create(createOrdeDto);
-      await this.ordeRepository.save(newOrder);
+      const newOrder = await this.create(createOrdeDto);
 
       await Promise.all(
         createOrderDetailDto.map(async (detail) => {
@@ -30,10 +30,36 @@ export class OrdesService {
           await this.ordeDetailRepository.save(newOrderDetail);
         }),
       );
+    } catch (error) {
+      throw new ServiceUnavailableException(error);
+    }
+  }
+  async create(createOrdeDto: CreateOrdeDto) {
+    try {
+      const newOrder = this.ordeRepository.create(createOrdeDto);
+      await this.ordeRepository.save(newOrder);
 
-      return { message: 'Order created successfully' };
+      return newOrder;
     } catch {
       throw new ServiceUnavailableException();
+    }
+  }
+
+  async createOrderDetail(
+    createOrderDetailDto: CreateOrderDetailDto,
+    id: string,
+  ) {
+    try {
+      const newOrder = await this.ordeDetailRepository.create({
+        orderId: id,
+        productId: createOrderDetailDto.productId,
+        quantity: createOrderDetailDto.quantity,
+        price: createOrderDetailDto.unit_price,
+      });
+
+      await this.ordeDetailRepository.save(newOrder);
+    } catch (error) {
+      throw new ServiceUnavailableException(error);
     }
   }
 

@@ -1,16 +1,14 @@
 import { Order, Status } from '@/ordes/entities/orde.entity';
-import { OrderDetail } from '@/ordes/entities/order-detail.entity';
+import { OrdesService } from '@/ordes/ordes.service';
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Payment as PaymentMP, Preference } from 'mercadopago';
-import { Resend } from 'resend';
 import { Repository } from 'typeorm';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { Payment } from './entities/payment.entity';
 import { mercadoPago } from './mercadopago.config';
 
-const resend = new Resend('re_FAJLPigh_PZ6RDQhHCR9DYj3GvEGBpuMW');
 const generateHtml = (data: any) => {
   return `
     <!DOCTYPE html>
@@ -107,44 +105,23 @@ export class PaymentsService {
   constructor(
     @InjectRepository(Payment)
     private paymentRepository: Repository<Payment>,
-    @InjectRepository(Order)
-    private ordeDetailRepository: Repository<OrderDetail>,
-    @InjectRepository(Order)
-    private orderRepository: Repository<Order>,
-  ) { }
-  async create(createPaymentDto: CreatePaymentDto) {
+    private readonly orderService: OrdesService,
+  ) {}
+  async create(createPaymentDto: CreatePaymentDto[]) {
     try {
-      const ordesDetails = [];
       const preference = await new Preference(mercadoPago).create({
         body: {
-          items: createPaymentDto.orderDetails.map((item) => ({
+          items: createPaymentDto.map((item) => ({
             id: item.productId,
-            title: item.title,
+            title: item.name,
             quantity: item.quantity,
-            unit_price: item.unit_price,
+            unit_price: parseInt(item.price.toString()),
+            description: item.description,
           })),
           metadata: {
             text: 'Ar belleza compra de productos desde tienda',
           },
         },
-      });
-
-      createPaymentDto.orderDetails.forEach(async (item) => {
-        const newOrder = await this.ordeDetailRepository.create({
-          orderId: preference.id,
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.unit_price,
-        });
-
-        ordesDetails.push(newOrder);
-        await this.ordeDetailRepository.save(newOrder);
-      });
-
-      this.orderRepository.create({
-        orderId: preference.id,
-        orderDetails: ordesDetails,
-        status: Status.waiting,
       });
 
       return preference.init_point;
@@ -159,10 +136,13 @@ export class PaymentsService {
         data: { id },
       } = data;
       const payment = await new PaymentMP(mercadoPago).get({ id });
+      console.log(data);
+
       if (payment.status === 'approved') {
         const findPayment = await this.paymentRepository.find({
           where: { id: payment.id },
         });
+
         if (!findPayment) {
           return { message: 'Payment already exists' };
         }
@@ -175,37 +155,8 @@ export class PaymentsService {
           ip_address: payment.additional_info.ip_address,
         });
 
-        await resend.batch.send([
-          {
-            to: `Acme ${payment.payer.email}`,
-            from: 'Acme <onboarding@resend.dev>',
-            subject: 'Order Confirmation',
-            html: generateHtml({
-              OrderID: payment.id,
-              OrderDate: payment.date_approved,
-              OrderTotal: payment.shipping_amount,
-
-              CustomerName: payment.payer.first_name,
-              YourCompanyName: 'Ar Belleza',
-              Year: new Date().getFullYear(),
-            }),
-          },
-          {
-            to: 'Acme ar.bellezaa@outlok.com',
-            from: 'Acme <onboarding@resend.dev>',
-            subject: 'Order Confirmation',
-            html: generateHtml({
-              OrderID: payment.id,
-              OrderDate: payment.date_approved,
-              OrderTotal: payment.shipping_amount,
-
-              CustomerName: payment.payer.first_name,
-              YourCompanyName: 'Ar Belleza',
-              Year: new Date().getFullYear(),
-            }),
-          },
-        ]);
-
+        console.log(payment.fee_details);
+        console.log(payment);
         await this.paymentRepository.save(newPayment);
         return { message: 'Payment approved' };
       }
