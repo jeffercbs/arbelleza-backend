@@ -26,15 +26,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.POSTGRES_HOST,
-      port: parseInt(process.env.POSTGRES_PORT),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASS,
-      database: process.env.POSTGRES_NAME,
+      url: process.env.DATABASE_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
-      cache: true,
-      autoLoadEntities: true,
+      synchronize: process.env.NODE_ENV === 'dev',
       ssl: process.env.POSTGRES_SSL === 'true',
       extra: {
         ssl:
