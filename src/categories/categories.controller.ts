@@ -19,10 +19,10 @@ import { Roles } from '@/auth/roles.decorator';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
+  // TODO: Change the visibility of this endpoint to public
   @Post()
   @View(Visibility.Private)
   @Roles(Role.Admin)
-  @Roles(Role.Team)
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }

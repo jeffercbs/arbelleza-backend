@@ -16,4 +16,5 @@ export class CreateProductDto {
   allowStock: boolean;
   activePriceOffer: boolean;
   image: string;
+  weightedRating: number;
 }

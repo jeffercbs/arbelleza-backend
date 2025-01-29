@@ -1,5 +1,6 @@
 export class CreateCategoryDto {
-    categoryName: string
-    categoryDescription: string
-    categoryImage: string | null
+  categoryID: number;
+  categoryName: string;
+  categoryDescription: string;
+  categoryImage: string | null;
 }

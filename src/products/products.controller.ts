@@ -27,18 +27,12 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  // TODO: Change the visibility of this endpoint to public
   @Post()
   @View(Visibility.Private)
   @Roles(Role.Admin)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
-  }
-
-  @Get('new')
-  @View(Visibility.Public)
-  @Roles(Role.Anonymous)
-  findNew(@Query('page', ParseIntPipe) page: number = 1) {
-    return this.productsService.findProductsNew(page);
   }
 
   @Get('offers')
@@ -48,14 +42,11 @@ export class ProductsController {
     return this.productsService.findInOffer(page);
   }
 
-  @Get('related')
+  @Get()
   @View(Visibility.Public)
   @Roles(Role.Anonymous)
-  findRelated(
-    @Param('tags') tags: string,
-    @Query('page', ParseIntPipe) page: number,
-  ) {
-    return this.productsService.findRelatedProductsByTags(tags, page);
+  findAll(@Query('page', ParseIntPipe) page: number = 1) {
+    return this.productsService.findAll(page);
   }
 
   @Patch(':id')
@@ -66,25 +57,17 @@ export class ProductsController {
     return this.productsService.update(id, updateProductDto);
   }
 
-  @Delete(':id')
-  @View(Visibility.Private)
-  @Roles(Role.Admin)
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
-  }
-
-  @Get()
-  @View(Visibility.Public)
-  @Roles(Role.Anonymous)
-  findAll(@Query('page', ParseIntPipe) page: number = 1) {
-    return this.productsService.findAll(page);
-  }
-
   @Get(':id')
   @View(Visibility.Public)
   @Roles(Role.Anonymous)
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
+  }
+  @Delete(':id')
+  @View(Visibility.Private)
+  @Roles(Role.Admin)
+  remove(@Param('id') id: string) {
+    return this.productsService.remove(id);
   }
 
   @Patch(':id/images')

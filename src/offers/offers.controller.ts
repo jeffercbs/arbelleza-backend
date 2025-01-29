@@ -24,21 +24,21 @@ export class OffersController {
   @Roles(Role.Admin)
   @Roles(Role.Team)
   create(@Body() createOfferDto: CreateOfferDto) {
-    return this.offersService.create(createOfferDto);
+    return 'This action adds a new offer';
   }
 
   @Get()
-  @View(Visibility.Public)
+  @View(Visibility.Private)
   @Roles(Role.Anonymous)
   findAll() {
-    return this.offersService.findAll();
+    return 'This action returns all offers';
   }
 
   @Get(':id')
   @View(Visibility.Public)
   @Roles(Role.Anonymous)
   findOne(@Param('id') id: string) {
-    return this.offersService.findOne(id);
+    return 'This action returns a #${id} offer';
   }
 
   @Patch(':id')

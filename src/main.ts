@@ -15,7 +15,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const port = process.env.PORT || 3000;
   app.enableCors({
-    origin: ['http://localhost:3001', 'https://example.com'],
+    origin: ['http://localhost:3001', 'https://arbelleza.com'],
   });
   app.use(cookieParser());
   app.use(clerkMiddleware({ clerkClient }));

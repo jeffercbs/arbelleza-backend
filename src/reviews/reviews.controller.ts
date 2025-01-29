@@ -8,12 +8,10 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
 import { ReviewsService } from './reviews.service';
 
 @Controller('reviews')
@@ -21,14 +19,14 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Post()
-  @View(Visibility.Public)
+  @View(Visibility.Private)
   @Roles(Role.User)
   create(@Body() createReviewDto: CreateReviewDto) {
     return this.reviewsService.create(createReviewDto);
   }
 
   @Get()
-  @View(Visibility.Public)
+  @View(Visibility.Private)
   @Roles(Role.User)
   findAll(@Query('productId') productId: string) {
     return this.reviewsService.findAll();
@@ -42,7 +40,7 @@ export class ReviewsController {
   }
 
   @Delete(':id')
-  @View(Visibility.Public)
+  @View(Visibility.Private)
   @Roles(Role.User)
   remove(@Param('id') id: string) {
     return this.reviewsService.remove(+id);

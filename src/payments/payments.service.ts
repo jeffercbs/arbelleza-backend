@@ -1,123 +1,47 @@
-import { Order, Status } from '@/ordes/entities/orde.entity';
-import { OrdesService } from '@/ordes/ordes.service';
+import { OrderCreatedEvent } from '@/ordes/events/order-event';
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Payment as PaymentMP, Preference } from 'mercadopago';
 import { Repository } from 'typeorm';
-import { CreatePaymentDto } from './dto/create-payment.dto';
+import { PaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { Payment } from './entities/payment.entity';
 import { mercadoPago } from './mercadopago.config';
-
-const generateHtml = (data: any) => {
-  return `
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .email-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: #ffffff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        .header h1 {
-            margin: 0;
-        }
-        .content {
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .content h2 {
-            color: #333;
-        }
-        .content p {
-            margin: 10px 0;
-            color: #555;
-        }
-        .order-details {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .order-details p {
-            margin: 5px 0;
-        }
-        .footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #f4f4f4;
-            font-size: 14px;
-            color: #888;
-        }
-    </style>
-</head>
-<body>
-    <div class="email-container">
-        <div class="header">
-            <h1>Thank You for Your Order!</h1>
-        </div>
-        <div class="content">
-            <h2>Hi, [Customer Name]</h2>
-            <p>We are pleased to confirm your order. Below are the details of your purchase:</p>
-
-            <div class="order-details">
-                <p><strong>Order Number:</strong> #[OrderID]</p>
-                <p><strong>Date:</strong> [OrderDate]</p>
-                <p><strong>Total:</strong> $[OrderTotal]</p>
-            </div>
-
-            <p>Your order will be shipped to:</p>
-            <p>[ShippingAddress]</p>
-
-            <p>If you have any questions, feel free to contact our support team. Thank you for shopping with us!</p>
-        </div>
-        <div class="footer">
-            <p>&copy; [YourCompanyName] [Year]. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>
-  `;
-};
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @InjectRepository(Payment)
     private paymentRepository: Repository<Payment>,
-    private readonly orderService: OrdesService,
+    private eventEmitter: EventEmitter2,
   ) {}
-  async create(createPaymentDto: CreatePaymentDto[]) {
+  async create(createPaymentDto: PaymentDto) {
+    const payer = createPaymentDto.payer;
+    console.log(createPaymentDto);
     try {
       const preference = await new Preference(mercadoPago).create({
         body: {
-          items: createPaymentDto.map((item) => ({
+          items: createPaymentDto.products.map((item) => ({
             id: item.productId,
             title: item.name,
             quantity: item.quantity,
             unit_price: parseInt(item.price.toString()),
             description: item.description,
           })),
+          payer: {
+            name: payer.name || '',
+            address: {
+              zip_code: payer.zipCode,
+              street_name: payer.city,
+              street_number: payer.address,
+            },
+            phone: {
+              area_code: '+57',
+              number: payer.phone,
+            },
+            email: payer.email,
+          },
           metadata: {
             text: 'Ar belleza compra de productos desde tienda',
           },
@@ -126,6 +50,7 @@ export class PaymentsService {
 
       return preference.init_point;
     } catch (error) {
+      console.log(error);
       throw new ServiceUnavailableException(error);
     }
   }
@@ -136,7 +61,6 @@ export class PaymentsService {
         data: { id },
       } = data;
       const payment = await new PaymentMP(mercadoPago).get({ id });
-      console.log(data);
 
       if (payment.status === 'approved') {
         const findPayment = await this.paymentRepository.find({
@@ -149,14 +73,32 @@ export class PaymentsService {
 
         const newPayment = this.paymentRepository.create({
           id: payment.id,
-          payment_amount: payment.shipping_amount,
-          payment_method: payment.fee_details[0].type,
-          payment_status: payment.status,
+          date_created: payment.date_created,
+          date_approved: payment.date_approved,
+          currency_id: payment.currency_id,
+          amount: payment.transaction_amount,
+          method: payment.payment_type_id,
+          status: payment.status,
+          net_received_amount: payment.transaction_details.net_received_amount,
+          total_paid_amount: payment.transaction_details.total_paid_amount,
           ip_address: payment.additional_info.ip_address,
         });
 
-        console.log(payment.fee_details);
         console.log(payment);
+        console.log(newPayment);
+
+        const order = new OrderCreatedEvent();
+        order.orderID = payment.id;
+        order.name = payment.payer.first_name + ' ' + payment.payer.last_name;
+        order.email = payment.payer.email;
+        order.phone = payment.payer.phone.number;
+        order.address = payment.payer.address.street_number;
+        order.city = payment.payer.address.street_name;
+        order.zipCode = payment.payer.address.zip_code;
+        order.country = 'Colombia';
+
+        this.eventEmitter.emit('order.created', order);
+
         await this.paymentRepository.save(newPayment);
         return { message: 'Payment approved' };
       }

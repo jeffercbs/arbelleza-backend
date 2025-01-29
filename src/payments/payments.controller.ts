@@ -12,7 +12,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
+import { PaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaymentsService } from './payments.service';
 
@@ -23,7 +23,7 @@ export class PaymentsController {
   @Post()
   @View(Visibility.Public)
   @Roles(Role.User)
-  create(@Body() createPaymentDto: CreatePaymentDto[]) {
+  create(@Body() createPaymentDto: PaymentDto) {
     return this.paymentsService.create(createPaymentDto);
   }
 

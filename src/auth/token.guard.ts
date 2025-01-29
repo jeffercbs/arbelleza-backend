@@ -13,7 +13,7 @@ import { ROLE_KEY } from './roles.decorator';
 
 @Injectable()
 export class TokenGuard implements CanActivate {
-  constructor(private reflator: Reflector) { }
+  constructor(private reflator: Reflector) {}
 
   private readonly logger = new Logger();
 
@@ -32,12 +32,13 @@ export class TokenGuard implements CanActivate {
 
     try {
       if (isPrivate === Visibility.Private) {
-        if (role !== Role.Admin || Role.Team) {
+        if (role !== Role.Admin || Role.Team || Role.User) {
           await verifyToken(req.cookies.__session, {
             jwtKey: process.env.CLERK_JWT_KEY,
           });
+          console.log('Token is valid');
         }
-        return false
+        return false;
       }
     } catch (error) {
       this.logger.error(error);

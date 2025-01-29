@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateOrdeDto } from './create-orde.dto';
+import { OrderCreatedEvent } from '../events/order-event';
 import { CreateOrderDetailDto } from './create-orde-detail';
 
-export class UpdateOrdeDto extends PartialType(CreateOrdeDto) {
+export class UpdateOrdeDto extends PartialType(OrderCreatedEvent) {
   orderDetails: CreateOrderDetailDto[];
 }

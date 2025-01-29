@@ -16,9 +16,11 @@ import { ActivityModule } from './activity/activity.module';
 import { TokenGuard } from './auth/token.guard';
 import { OffersModule } from './offers/offers.module';
 import { ResendModule } from './resend/resend.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -70,4 +72,4 @@ import { ResendModule } from './resend/resend.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

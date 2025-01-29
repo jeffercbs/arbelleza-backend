@@ -33,10 +33,11 @@ export class ProductsService {
 
   async findAll(page: number) {
     try {
-      const pageSize = 30;
+      const pageSize = 16;
       const [result, total] = await this.productRepository.findAndCount({
         order: {
           allowStock: 'DESC',
+          weightedRating: 'DESC',
         },
         take: pageSize,
         skip: (page - 1) * pageSize,
@@ -46,9 +47,11 @@ export class ProductsService {
           brand: true,
           price: true,
           image: true,
+          type: true,
           allowStock: true,
           activePriceOffer: true,
-          categoryId: true,
+          recomendation: true,
+          tags: true,
         },
       });
 
@@ -110,85 +113,6 @@ export class ProductsService {
       if (error instanceof NotFoundException) {
         return error;
       }
-      throw new ServiceUnavailableException();
-    }
-  }
-
-  async findProductsNew(page: number) {
-    try {
-      const pageSize = 12;
-      const [result, total] = await this.productRepository.findAndCount({
-        take: pageSize,
-        skip: (page - 1) * pageSize,
-        order: {
-          createdAt: 'DESC',
-          allowStock: 'DESC',
-        },
-        select: {
-          productId: true,
-          name: true,
-          brand: true,
-          price: true,
-          image: true,
-          allowStock: true,
-          activePriceOffer: true,
-        },
-      });
-
-      const totalPages = Math.ceil(total / pageSize);
-      const nextCursor = page < totalPages ? page + 1 : null;
-
-      if (!result) {
-        throw new NotFoundException('Not found products');
-      }
-
-      return {
-        page,
-        nextCursor,
-        totalPages,
-        totalItems: total,
-        products: result,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        return error;
-      }
-      throw new ServiceUnavailableException();
-    }
-  }
-
-  async findRelatedProductsByTags(tags: string, page: number) {
-    try {
-      const pageSize = 20;
-      const [products, total] = await this.productRepository.findAndCount({
-        where: {
-          tags: tags,
-        },
-        take: pageSize,
-        skip: (page - 1) * pageSize,
-      });
-
-      if (!products) {
-        throw new NotFoundException({
-          error: 'Not found the product for this category',
-        });
-      }
-
-      const totalPages = Math.ceil(total / pageSize);
-      const nextPage = page < totalPages ? page + 1 : null;
-
-      return {
-        page,
-        nextPage,
-        totalPages,
-        totalItems: total,
-        products: products,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-
       throw new ServiceUnavailableException();
     }
   }

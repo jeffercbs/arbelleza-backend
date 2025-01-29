@@ -1,26 +1,34 @@
-import { Order } from '@/ordes/entities/orde.entity';
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('payments')
 export class Payment {
-  @Column({ type: "bigint", unique: true, primary: true })
+  @PrimaryColumn()
   id: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  payment_date: Date;
+  @Column({ type: 'varchar' })
+  date_created: string;
+
+  @Column({ type: 'varchar' })
+  date_approved: string;
 
   @Column()
-  payment_amount: number;
+  currency_id: string;
 
   @Column()
-  payment_method: string;
+  amount: number;
 
   @Column()
-  payment_status: string;
+  method: string;
 
-  @Column({ type: "varchar", length: 255 })
+  @Column()
+  status: string;
+
+  @Column()
+  net_received_amount: number;
+
+  @Column()
+  total_paid_amount: number;
+
+  @Column({ type: 'varchar', length: 255 })
   ip_address: string;
-
-  @OneToOne(() => Order, (order) => order.payment)
-  order: Order;
 }

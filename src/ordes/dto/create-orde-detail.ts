@@ -12,8 +12,6 @@ export class OrderDetailDto {
 
   @IsNumber()
   unit_price: number;
-
-  title: string;
 }
 
 export class CreateOrderDetailDto extends PartialType(OrderDetailDto) {}

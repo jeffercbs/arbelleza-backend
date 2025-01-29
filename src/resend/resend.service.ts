@@ -1,6 +1,6 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { CreateResendDto } from './dto/create-resend.dto';
-import { UpdateResendDto } from './dto/update-resend.dto';
+import { CreateResendDto } from '../resend/dto/create-resend.dto';
+import { UpdateResendDto } from '../resend/dto/update-resend.dto';
 import { Resend } from 'resend';
 
 const resend = new Resend('re_FAJLPigh_PZ6RDQhHCR9DYj3GvEGBpuMW');
@@ -26,21 +26,5 @@ export class ResendService {
     } catch (error) {
       throw new ServiceUnavailableException(error);
     }
-  }
-
-  findAll() {
-    return `This action returns all resend`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} resend`;
-  }
-
-  update(id: number, updateResendDto: UpdateResendDto) {
-    return `This action updates a #${id} resend`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} resend`;
   }
 }
