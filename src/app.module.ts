@@ -26,16 +26,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
+      url: process.env.PG_URL,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV === 'dev',
-      ssl: process.env.POSTGRES_SSL === 'true',
-      extra: {
-        ssl:
-          process.env.POSTGRES_SSL === 'true'
-            ? { rejectUnauthorized: false }
-            : null,
-      },
+      synchronize: true,
+      autoLoadEntities: true,
     }),
     ThrottlerModule.forRoot([
       {
