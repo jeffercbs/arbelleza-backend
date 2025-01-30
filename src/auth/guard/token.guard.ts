@@ -6,10 +6,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { VISIBILITY_KEY } from './visibility.decorator';
-import { Visibility } from './visibility.enum';
-import { Role } from './role.enum';
-import { ROLE_KEY } from './roles.decorator';
+import { VISIBILITY_KEY, ROLE_KEY } from '../decorator';
+import { Visibility } from '../visibility.enum';
+import { Role } from '../role.enum';
 
 @Injectable()
 export class TokenGuard implements CanActivate {
