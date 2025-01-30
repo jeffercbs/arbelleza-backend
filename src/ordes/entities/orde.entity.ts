@@ -2,29 +2,29 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('orders')
 export class Order {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'bigint' })
   orderId: number;
 
-  @Column()
+  @Column({ type: 'varchar' })
   name: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   phone: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   address: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   city: string;
 
-  @Column({ default: 'Colombia' })
+  @Column({ type: 'varchar', default: 'Colombia' })
   country: string;
 
-  @Column()
-  postalCode: string;
+  @Column({ type: 'varchar' })
+  zipCode: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   orderDate: Date;

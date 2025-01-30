@@ -5,5 +5,6 @@ import { ResendController } from './resend.controller';
 @Module({
   controllers: [ResendController],
   providers: [ResendService],
+  exports: [ResendService],
 })
 export class ResendModule {}

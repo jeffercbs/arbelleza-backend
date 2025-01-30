@@ -10,5 +10,5 @@ export class OrderPlayer {
   country: string;
 }
 export class OrderCreatedEvent extends PartialType(OrderPlayer) {
-  orderID: number;
+  orderId: number;
 }

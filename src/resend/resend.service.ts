@@ -1,28 +1,31 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
-import { CreateResendDto } from '../resend/dto/create-resend.dto';
-import { UpdateResendDto } from '../resend/dto/update-resend.dto';
 import { Resend } from 'resend';
+import { CreateResendDto } from '../resend/dto/create-resend.dto';
 
-const resend = new Resend('re_FAJLPigh_PZ6RDQhHCR9DYj3GvEGBpuMW');
+const resend = new Resend('re_iqstytjn_FQHa5yPz1rSXG7owV6BF9bSf');
 
+const html = (id: number) => `
+  <html>
+    <head>
+      <title>Order Confirmation</title>
+    </head>
+    <body>
+      <h1>Order Confirmation</h1>
+      <p>Your order with id #${id} has been confirmed</p>
+      <a href="http://localhost:3000/order/${id}">View Order</a>
+      </body>
+  </html>
+`;
 @Injectable()
 export class ResendService {
   async send(createResendDto: CreateResendDto) {
     try {
-      await resend.batch.send([
-        {
-          to: `Acme ${createResendDto.to}`,
-          from: 'Acme <onboarding@resend.dev>',
-          subject: 'Order Confirmation',
-          html: 'Your order has been confirmed',
-        },
-        {
-          to: 'Acme ar.bellezaa@outlok.com',
-          from: 'Acme <onboarding@resend.dev>',
-          subject: 'Order Confirmation',
-          html: 'Your order has been confirmed',
-        },
-      ]);
+      await resend.emails.send({
+        from: `Acme ${createResendDto.from}`,
+        to: [createResendDto.to],
+        subject: 'AR Belleza - Order Confirmation',
+        html: html(createResendDto.id),
+      });
     } catch (error) {
       throw new ServiceUnavailableException(error);
     }

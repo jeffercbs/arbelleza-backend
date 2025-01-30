@@ -18,6 +18,7 @@ export class PaymentsService {
   ) {}
   async create(createPaymentDto: PaymentDto) {
     const payer = createPaymentDto.payer;
+
     try {
       const preference = await new Preference(mercadoPago).create({
         body: {
@@ -41,13 +42,10 @@ export class PaymentsService {
             },
           },
           metadata: {
-            payer: payer,
-            text: 'Ar belleza compra de productos desde tienda',
+            text: JSON.stringify(createPaymentDto),
           },
-          additional_info: JSON.stringify(payer),
           shipments: {
             cost: 0,
-            mode: 'not_specified',
             receiver_address: {
               city_name: payer.city,
               country_name: 'Colombia',
@@ -60,6 +58,7 @@ export class PaymentsService {
 
       return preference.init_point;
     } catch (error) {
+      console.log('error', error);
       throw new ServiceUnavailableException(error);
     }
   }
@@ -70,6 +69,7 @@ export class PaymentsService {
         data: { id },
       } = data;
       const payment = await new PaymentMP(mercadoPago).get({ id });
+      console.log('payment', payment);
 
       if (payment.status == 'approved') {
         const findPayment = await this.paymentRepository.findBy({
@@ -95,15 +95,17 @@ export class PaymentsService {
 
         await this.paymentRepository.save(newPayment);
 
+        const orderData = JSON.parse(payment.metadata.text);
         const order = new OrderCreatedEvent();
-        order.orderID = payment.id;
-        order.name = payment.payer.first_name + ' ' + payment.payer.last_name;
-        order.email = payment.payer.email || 'No email';
-        order.phone = payment.payer.phone.number || 'No phone';
-        order.address = payment.payer.address.street_number || 'No address';
-        order.city = payment.payer.address.street_name || 'No city';
-        order.zipCode = payment.payer.address.zip_code || 'No zip code';
-        order.country = 'Colombia';
+
+        order.orderId = payment.id;
+        order.name = orderData.payer.name;
+        order.email = orderData.payer.email;
+        order.phone = orderData.payer.phone;
+        order.address = orderData.payer.address;
+        order.city = orderData.payer.city;
+        order.zipCode = orderData.payer.zipCode;
+        order.country = orderData.payer.country;
 
         this.eventEmitter.emit('order.created', order);
 
