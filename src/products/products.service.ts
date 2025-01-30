@@ -22,7 +22,6 @@ export class ProductsService {
 
       return { message: 'Product created successfully', now: new Date() };
     } catch (error) {
-      console.log(error);
       throw new ServiceUnavailableException();
     }
   }

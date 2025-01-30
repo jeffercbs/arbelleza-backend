@@ -1,5 +1,5 @@
 import { Role } from '@/auth/role.enum';
-import { Roles } from '@/auth/decorator/roles.decorator';
+import { Roles, API_KEY, Keys } from '@/auth/decorator';
 import { View } from '@/auth/decorator';
 import { Visibility } from '@/auth/visibility.enum';
 import {
@@ -22,12 +22,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductsService } from './products.service';
+import { Key } from '@/auth/enum/key.enum';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // TODO: Change the visibility of this endpoint to public
   @Post()
   @View(Visibility.Private)
   @Roles(Role.Admin)

@@ -1,5 +1,5 @@
 import { Role } from '@/auth/role.enum';
-import { Roles, View } from '@/auth/decorator';
+import { Roles, View, Keys } from '@/auth/decorator';
 import { Visibility } from '@/auth/visibility.enum';
 import {
   Body,
@@ -14,6 +14,7 @@ import {
 import { PaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaymentsService } from './payments.service';
+import { Key } from '@/auth/enum/key.enum';
 
 @Controller('payments')
 export class PaymentsController {
@@ -28,6 +29,7 @@ export class PaymentsController {
 
   @Post('validate')
   @View(Visibility.Public)
+  @Keys(Key.NotApiKey)
   @Roles(Role.Anonymous)
   validatePayment(@Body() data: { id: string }) {
     return this.paymentsService.validatePayment(data);

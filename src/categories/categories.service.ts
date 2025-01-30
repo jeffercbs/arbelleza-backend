@@ -21,7 +21,6 @@ export class CategoriesService {
         await this.categoryRepository.create(createCategoryDto);
       await this.categoryRepository.save(newCategory);
     } catch (error) {
-      console.log(error);
       throw new ServiceUnavailableException();
     }
   }

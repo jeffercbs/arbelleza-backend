@@ -18,7 +18,6 @@ export class OrderCreatedListener {
       const newOrde = this.ordeRepository.create(payload);
       this.ordeRepository.save(newOrde);
     } catch (error) {
-      console.log(error);
       throw new Error('Error creating order');
     }
   }

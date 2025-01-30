@@ -18,7 +18,6 @@ export class PaymentsService {
   ) {}
   async create(createPaymentDto: PaymentDto) {
     const payer = createPaymentDto.payer;
-    console.log(createPaymentDto);
     try {
       const preference = await new Preference(mercadoPago).create({
         body: {
@@ -50,7 +49,6 @@ export class PaymentsService {
 
       return preference.init_point;
     } catch (error) {
-      console.log(error);
       throw new ServiceUnavailableException(error);
     }
   }
@@ -83,9 +81,6 @@ export class PaymentsService {
           total_paid_amount: payment.transaction_details.total_paid_amount,
           ip_address: payment.additional_info.ip_address,
         });
-
-        console.log(payment);
-        console.log(newPayment);
 
         const order = new OrderCreatedEvent();
         order.orderID = payment.id;
