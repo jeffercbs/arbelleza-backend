@@ -19,7 +19,6 @@ export class ApiKeyStrategy extends PassportStrategy(HeaderAPIKeyStrategy) {
   public validate(apiKey: string): ApiKeyEntity {
     const key = this.apiKeyService.findKey(apiKey);
 
-    console.log('key', key);
     if (!key) {
       throw new UnauthorizedException({ message: 'Invalid API key' });
     }

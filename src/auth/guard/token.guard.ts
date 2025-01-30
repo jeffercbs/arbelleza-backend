@@ -35,7 +35,6 @@ export class TokenGuard implements CanActivate {
           await verifyToken(req.cookies.__session, {
             jwtKey: process.env.CLERK_JWT_KEY,
           });
-          console.log('Token is valid');
         }
         return false;
       }
