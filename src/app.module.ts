@@ -13,10 +13,12 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from './accounts/accounts.module';
 import { ActivityModule } from './activity/activity.module';
-import { TokenGuard } from './auth/token.guard';
+import { TokenGuard } from './auth/guard/token.guard';
 import { OffersModule } from './offers/offers.module';
 import { ResendModule } from './resend/resend.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ApiKeyGuard } from './auth/guard/api-key.guard';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -64,6 +66,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     AccountsModule,
     ActivityModule,
     ResendModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -71,6 +74,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     {
       provide: APP_GUARD,
       useClass: TokenGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
     },
   ],
 })

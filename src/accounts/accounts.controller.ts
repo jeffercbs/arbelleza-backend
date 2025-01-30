@@ -1,6 +1,5 @@
 import { Role } from '@/auth/role.enum';
-import { Roles } from '@/auth/roles.decorator';
-import { View } from '@/auth/visibility.decorator';
+import { View, Roles } from '@/auth/decorator';
 import { Visibility } from '@/auth/visibility.enum';
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
@@ -8,7 +7,7 @@ import { UpdateAccountDto } from './dto/update-account.dto';
 
 @Controller('accounts')
 export class AccountsController {
-  constructor(private readonly accountsService: AccountsService) { }
+  constructor(private readonly accountsService: AccountsService) {}
 
   @Get()
   @View(Visibility.Private)

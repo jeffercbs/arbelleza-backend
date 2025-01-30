@@ -10,10 +10,9 @@ import {
 import { ActivityService } from './activity.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
-import { View } from '@/auth/visibility.decorator';
+import { View, Roles } from '@/auth/decorator';
 import { Visibility } from '@/auth/visibility.enum';
 import { Role } from '@/auth/role.enum';
-import { Roles } from '@/auth/roles.decorator';
 
 @Controller('activity')
 export class ActivityController {

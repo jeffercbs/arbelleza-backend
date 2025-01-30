@@ -1,6 +1,5 @@
 import { Role } from '@/auth/role.enum';
-import { Roles } from '@/auth/roles.decorator';
-import { View } from '@/auth/visibility.decorator';
+import { Roles, View } from '@/auth/decorator';
 import { Visibility } from '@/auth/visibility.enum';
 import { Body, Controller, Delete, Param, Patch } from '@nestjs/common';
 import { UpdateOrdeDto } from './dto/update-orde.dto';

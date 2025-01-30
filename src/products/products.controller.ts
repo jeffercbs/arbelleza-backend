@@ -1,6 +1,6 @@
 import { Role } from '@/auth/role.enum';
-import { Roles } from '@/auth/roles.decorator';
-import { View } from '@/auth/visibility.decorator';
+import { Roles } from '@/auth/decorator/roles.decorator';
+import { View } from '@/auth/decorator';
 import { Visibility } from '@/auth/visibility.enum';
 import {
   Body,
