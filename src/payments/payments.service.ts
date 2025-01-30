@@ -29,20 +29,31 @@ export class PaymentsService {
             description: item.description,
           })),
           payer: {
-            name: payer.name || '',
-            address: {
-              zip_code: payer.zipCode,
-              street_name: payer.city,
-              street_number: payer.address,
-            },
+            email: payer.email,
+            name: payer.name,
             phone: {
               area_code: '+57',
               number: payer.phone,
             },
-            email: payer.email,
+            address: {
+              zip_code: payer.zipCode,
+              street_name: payer.address,
+            },
           },
           metadata: {
+            payer: payer,
             text: 'Ar belleza compra de productos desde tienda',
+          },
+          additional_info: JSON.stringify(payer),
+          shipments: {
+            cost: 0,
+            mode: 'not_specified',
+            receiver_address: {
+              city_name: payer.city,
+              country_name: 'Colombia',
+              apartment: payer.address,
+              zip_code: payer.zipCode,
+            },
           },
         },
       });
@@ -60,13 +71,13 @@ export class PaymentsService {
       } = data;
       const payment = await new PaymentMP(mercadoPago).get({ id });
 
-      if (payment.status === 'approved') {
-        const findPayment = await this.paymentRepository.find({
-          where: { id: payment.id },
+      if (payment.status == 'approved') {
+        const findPayment = await this.paymentRepository.findBy({
+          id: payment.id,
         });
 
-        if (!findPayment) {
-          return { message: 'Payment already exists' };
+        if (findPayment.length > 0) {
+          throw new ServiceUnavailableException('Payment already exists');
         }
 
         const newPayment = this.paymentRepository.create({
@@ -82,24 +93,26 @@ export class PaymentsService {
           ip_address: payment.additional_info.ip_address,
         });
 
+        await this.paymentRepository.save(newPayment);
+
         const order = new OrderCreatedEvent();
         order.orderID = payment.id;
         order.name = payment.payer.first_name + ' ' + payment.payer.last_name;
-        order.email = payment.payer.email;
-        order.phone = payment.payer.phone.number;
-        order.address = payment.payer.address.street_number;
-        order.city = payment.payer.address.street_name;
-        order.zipCode = payment.payer.address.zip_code;
+        order.email = payment.payer.email || 'No email';
+        order.phone = payment.payer.phone.number || 'No phone';
+        order.address = payment.payer.address.street_number || 'No address';
+        order.city = payment.payer.address.street_name || 'No city';
+        order.zipCode = payment.payer.address.zip_code || 'No zip code';
         order.country = 'Colombia';
 
         this.eventEmitter.emit('order.created', order);
 
-        await this.paymentRepository.save(newPayment);
         return { message: 'Payment approved' };
       }
 
       return { message: 'Payment not approved' };
     } catch (error) {
+      console.log('error', error);
       throw new ServiceUnavailableException();
     }
   }

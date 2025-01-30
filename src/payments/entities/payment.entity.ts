@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('payments')
 export class Payment {
-  @PrimaryColumn()
+  @PrimaryColumn({ type: 'bigint' })
   id: number;
 
   @Column({ type: 'varchar' })
@@ -11,16 +11,16 @@ export class Payment {
   @Column({ type: 'varchar' })
   date_approved: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   currency_id: string;
 
-  @Column()
+  @Column({ type: 'decimal' })
   amount: number;
 
-  @Column()
+  @Column({ type: 'varchar' })
   method: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   status: string;
 
   @Column()
