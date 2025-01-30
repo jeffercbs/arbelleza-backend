@@ -18,6 +18,10 @@ export class OrdesService {
     return `This action updates a #${id} orde`;
   }
 
+  async findOne(id: number) {
+    return await this.ordeRepository.findOne({ where: { orderId: id } });
+  }
+
   remove(id: string) {
     return `This action removes a #${id} orde`;
   }
