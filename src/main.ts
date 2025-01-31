@@ -16,7 +16,7 @@ async function bootstrap() {
   const port = parseInt(process.env.PORT) || 4000;
 
   app.enableCors({
-    origin: ['http://localhost:3001', 'https://arbelleza.com'],
+    origin: ['http://localhost:3000', 'https://arbelleza.com'],
   });
   app.use(cookieParser());
   app.use(clerkMiddleware({ clerkClient }));

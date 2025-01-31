@@ -30,7 +30,19 @@ export class ProductsService {
     return `This action updates a #${productId} product`;
   }
 
-  async findAll(page: number) {
+  async findAll() {
+    try {
+      const products = await this.productRepository.find({});
+      if (!products) {
+        throw new NotFoundException('Not found products');
+      }
+      return products;
+    } catch (error) {
+      throw new ServiceUnavailableException();
+    }
+  }
+
+  async findForPages(page: number) {
     try {
       const pageSize = 16;
       const [result, total] = await this.productRepository.findAndCount({
@@ -134,6 +146,7 @@ export class ProductsService {
           tags: true,
           stock: true,
           images: true,
+          recomendation: true,
         },
       });
 

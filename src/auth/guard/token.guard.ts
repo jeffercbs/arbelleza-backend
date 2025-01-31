@@ -31,7 +31,7 @@ export class TokenGuard implements CanActivate {
 
     try {
       if (isPrivate === Visibility.Private) {
-        if (role !== Role.Admin || Role.Team || Role.User) {
+        if (role === Role.User || role === Role.Admin || role === Role.Team) {
           await verifyToken(req.cookies.__session, {
             jwtKey: process.env.CLERK_JWT_KEY,
           });
