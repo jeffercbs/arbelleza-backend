@@ -19,6 +19,7 @@ import { ResendModule } from './resend/resend.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ApiKeyGuard } from './auth/guard/api-key.guard';
 import { AuthModule } from './auth/auth.module';
+import { FeedbackModule } from './feedback/feedback.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { AuthModule } from './auth/auth.module';
     ActivityModule,
     ResendModule,
     AuthModule,
+    FeedbackModule,
   ],
   controllers: [AppController],
   providers: [
