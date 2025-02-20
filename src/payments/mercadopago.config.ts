@@ -2,5 +2,5 @@ import MercadoPagoConfig from 'mercadopago';
 
 export const mercadoPago = new MercadoPagoConfig({
   accessToken:
-    'APP_USR-7073430324966697-111619-aad9340d4a4acf4752697cb2bee5af59-2102627332',
+    'APP_USR-3026590866441029-022011-550a01f7e80f2de88761dd62ab39a63b-2082623428',
 });
